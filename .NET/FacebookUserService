@@ -1,0 +1,70 @@
+ public int AddThirdParty(UserThirdPartyAddRequest model)
+        {
+            int id = 0;
+            string procName = "[dbo].[Register_ThirdParty]";
+            _dataProvider.ExecuteNonQuery(procName,
+                inputParamMapper: delegate (SqlParameterCollection col)
+                {
+                    col.AddWithValue("@Email", model.Email);
+                    col.AddWithValue("@Token", model.AccessToken);
+                    col.AddWithValue("@TokenType", model.TokenType);
+                    col.AddWithValue("@RoleId", model.RoleId);
+                    SqlParameter idOut = new SqlParameter("@Id", SqlDbType.Int);
+                    idOut.Direction = ParameterDirection.Output;
+                    col.Add(idOut);
+                }, returnParameters: delegate (SqlParameterCollection returnCollection)
+                {
+                    object oId = returnCollection["@Id"].Value;
+                    int.TryParse(oId.ToString(), out id);
+                });
+            return id;
+        }
+        public async Task<bool> ThirdPartyLogInAsync(string email)
+        {
+            bool isSuccessful = false;
+
+            IUserAuthData response = GetThirdParty(email);
+
+            if (response != null)
+            {
+                await _authenticationService.LogInAsync(response);
+                isSuccessful = true;
+            }
+
+            return isSuccessful;
+        }        
+        public string GetAccessToken(string email)
+        {
+            string token = null;
+            string procName = "[dbo].[UserThirdPary_GetToken]";
+            _dataProvider.ExecuteCmd(procName, delegate (SqlParameterCollection paramCollection)
+            {
+                paramCollection.AddWithValue("@email", email);
+            }, delegate (IDataReader reader, short set)
+            {
+                int startingIndex = 0;
+                token = reader.GetSafeString(startingIndex);
+            });
+            return token;
+        }
+        private IUserAuthData GetThirdParty(string email)
+        {
+            UserBase user = null;
+
+            string procName = "[dbo].[UserThirdParty_Select_AuthData]";
+            _dataProvider.ExecuteCmd(procName, delegate (SqlParameterCollection paramCollection)
+            {
+                paramCollection.AddWithValue("@Email", email);
+            }, delegate (IDataReader reader, short set)
+            {
+                user = new UserBase();
+                int startingIndex = 0;
+                user.Id = reader.GetSafeInt32(startingIndex++);
+                user.Name = email;
+                List<Role> roles = reader.DeserializeObject<List<Role>>(startingIndex++);
+                user.Roles = roles.Select(x => x.Name).ToList();
+                user.TenantId = "flow-beta-v0.0.1"; // hard code for now
+            }
+            );
+            return user;
+        }       
