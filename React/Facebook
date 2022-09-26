@@ -1,0 +1,39 @@
+import React from 'react';
+import FacebookLogin from 'react-facebook-login';
+import PropTypes from 'prop-types';
+import { REACT_APP_FB_APP_ID } from '../../services/serviceHelpers';
+import './sociallogin.css';
+import debug from 'sabio-debug';
+
+function Facebook(props) {
+
+  const _logger = debug.extend('fblogin');
+  const responseFacebook = (response) => {
+    _logger(response);
+    props.onClick(response)
+  }
+  
+  const appId = REACT_APP_FB_APP_ID;
+
+  return (
+    <FacebookLogin
+    appId={appId}
+    autoLoad={false}
+    fields="name,email,picture"
+    textButton={`    ${props.buttonText}`}
+    scope="public_profile,user_friends"
+    callback={responseFacebook}
+    icon="fa-facebook"
+    cssClass='btn btn-primary social-button-area col-12'
+    isDisabled={props.isDisabled}
+    />
+  );  
+}
+
+Facebook.propTypes = {
+    buttonText: PropTypes.string.isRequired,
+    onClick: PropTypes.func.isRequired,
+    isDisabled: PropTypes.bool.isRequired
+}
+
+export default Facebook;
