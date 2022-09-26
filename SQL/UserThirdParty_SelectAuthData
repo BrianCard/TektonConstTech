@@ -1,0 +1,55 @@
+USE [Flow]
+GO
+/****** Object:  StoredProcedure [dbo].[UserThirdParty_Select_AuthData]    Script Date: 9/26/2022 3:41:24 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Authors: Brian Card & Richard Woods
+-- Create date: 2022-09-08
+-- Description: Selects all associated UserRoles based on UserEmail. This is the user data for Auth Cookie.
+-- Code Reviewer: 
+
+-- MODIFIED BY:
+-- MODIFIED DATE:
+-- Code Reviewer:
+-- Note:
+-- =============================================
+
+
+ALTER PROC [dbo].[UserThirdParty_Select_AuthData]
+	@Email nvarchar(255)
+	
+AS
+/* ----- TEST CODE -----
+	DECLARE @Email nvarchar(255) = 'richard.c.woodsii@gmail.com'
+	
+	EXECUTE dbo.UserThirdParty_Select_AuthData @Email
+*/ ----- END TEST CODE -----
+Declare @status INT
+		,@confirm BIT
+SELECT @status = U.UserStatusId
+		,@confirm = U.IsConfirmed
+		
+FROM dbo.Users as U
+WHERE @Email = Email
+BEGIN
+	
+	IF @confirm = 1
+		IF @status < 2
+			SELECT		U.[Id]
+						,Roles = (
+								SELECT r.Name
+								FROM dbo.Roles AS r INNER JOIN dbo.UserRoles AS ur
+										ON r.Id = ur.RoleId
+								WHERE u.Id = ur.UserId
+								FOR JSON AUTO
+						)
+			  FROM [dbo].[Users] AS U
+			  WHERE [U].[Email] = @Email
+		ELSE
+			  THROW 50000, 'User is not confirmed', 1
+	ELSE
+			  THROW 50000, 'User is not active', 1
+END
