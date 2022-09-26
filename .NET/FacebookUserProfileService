@@ -1,0 +1,45 @@
+   public int Add(UserProfileAddRequest model, int userId)
+        {
+            int id = 0;
+
+            string procName = "[dbo].[UserProfiles_Insert]";
+
+            _data.ExecuteNonQuery(procName,
+                inputParamMapper: delegate (SqlParameterCollection col)
+                {
+
+                    AddCommonParams(model, col, userId);
+                    
+
+                    SqlParameter idOut = new SqlParameter("@Id", SqlDbType.Int);
+                    idOut.Direction = ParameterDirection.Output;
+
+                    col.Add(idOut);
+
+                },
+                returnParameters: delegate (SqlParameterCollection returnCollection)
+                {
+                    object oId = returnCollection["@Id"].Value;
+
+                    int.TryParse(oId.ToString(), out id);
+
+                });
+
+            return id;
+        }
+        
+        private static void AddCommonParams(UserProfileAddRequest model, SqlParameterCollection col,int userId)
+        {
+            col.AddWithValue("@FirstName", model.FirstName);
+            col.AddWithValue("@LastName", model.LastName);
+            if (model.MI != null)
+            {
+                col.AddWithValue("@MI", model.MI);
+            }
+            else
+            {
+                col.AddWithValue("@MI", DBNull.Value);
+            }
+            col.AddWithValue("@AvatarUrl", model.AvatarUrl);
+            col.AddWithValue("@UserId", userId);
+        }
