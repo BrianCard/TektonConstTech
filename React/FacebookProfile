@@ -1,0 +1,34 @@
+    const onFbFormClick = (fbData) => {
+        let nameSplit = fbData.name.split(' ')
+        const profileData =
+        {
+            firstName: nameSplit[0],
+            lastName: nameSplit[1],
+            avatarUrl: fbData.picture.data.url  
+        }
+        userProfileService.addUser(profileData).then(onCreateSuccess).catch(onCreateError)
+    };
+    
+    
+     <div className="mb-1 mt-2 text-center">
+                            <Facebook 
+                                buttonText='Use Facebook Profile'
+                                onClick={onFbFormClick}
+                            />
+     </div>
+        
+     ---------------------------------------------------------------------------------------------------
+     
+     const addUser = (payload) => {
+    _logger(`${api}`);
+
+    const config = {
+        method: 'POST',
+        url: api,
+        data: payload,
+        withCredentials: true,
+        crossdomain: true,
+        headers: { 'Content-Type': 'application/json' },
+    };
+    return axios(config).then(onGlobalSuccess).catch(onGlobalError);
+};
