@@ -1,0 +1,27 @@
+    const onFbLoginClicked = (fbData) => {
+
+        const loginData = {
+            email: fbData.email
+        }
+        userService.fbLogin(loginData).then(onFbLoginSuccess).catch(onFbLoginError);
+    };
+    
+    <Col className="text-center">
+                            <Facebook
+                                buttonText=" Facebook Login"
+                                onClick={onFbLoginClicked}
+                            />
+    </Col>
+    
+    -----------------------------------------------------------------------------
+    
+    const fbLogin = (payload) => {
+    const config = {
+        method: 'POST',
+        url: endpoint + '/facebook/login',
+        data: payload,
+        crossdomain: true,
+        headers: { 'Content-Type': 'application/json' },
+    };
+    return axios(config).then(onGlobalSuccess).catch(onGlobalError);
+};
