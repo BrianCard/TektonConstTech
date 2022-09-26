@@ -1,0 +1,37 @@
+    const onFacebookRegisterClick = (fbData) =>
+    {
+        _logger(fbData)
+        const registerData = 
+        {
+            email: fbData.email,
+            accessToken: fbData.accessToken,
+            tokenType: 3,
+            roleId: roleSelection.id
+        }
+       userService.fbRegister(registerData).then(onRegisterSuccess).catch(onRegisterError)
+    };
+    
+        <Row className="mt-2">
+                            <Col>
+                                    <Button
+                                        type='button'
+                                        className='btn col-12'
+                                        onClick={onRegisterWithSocialClick}
+                                        ><FaFacebookSquare/> Sign Up with Facebook
+                                    </Button>
+                            </Col>
+                        </Row>  
+    
+    
+    --------------------------------------------------------------------------------------------
+    
+    const fbRegister = (payload) => {
+    const config = {
+        method: 'POST',
+        url: endpoint + '/facebook/register',
+        crossdomain: true,
+        headers: { 'Content-Type': 'application/json' },
+        data: payload
+    };
+    return axios(config).then(onGlobalSuccess).catch(onGlobalError);
+};
