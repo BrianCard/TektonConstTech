@@ -1,0 +1,44 @@
+USE [Flow]
+GO
+/****** Object:  StoredProcedure [dbo].[UserThirdPary_GetToken]    Script Date: 9/26/2022 3:39:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: Richard Woods & Brian Card
+-- Create date: 2022-09-10
+-- Description: Selects all associated UserTokens based on UserEmail. Used for Third Party Login.
+-- Code Reviewer: 
+
+-- MODIFIED BY:
+-- MODIFIED DATE:
+-- Code Reviewer:
+-- Note:
+-- =============================================
+
+ALTER proc [dbo].[UserThirdPary_GetToken]
+								@email nvarchar(255)
+								
+
+AS
+
+/****TEST*****
+
+Declare @email nvarchar(255) = 'flowdevs@yahoo.com'
+
+Execute [dbo].[UserThirdPary_GetToken] @email
+*/
+BEGIN
+Declare @id int
+
+Select @id = u.Id
+From dbo.Users as u
+Where @email = u.Email
+
+Select ut.Token
+From dbo.UserTokens as ut
+Where @id = ut.UserId
+
+END
